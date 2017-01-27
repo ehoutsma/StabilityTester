@@ -4,6 +4,7 @@ XHPLBINARY="xhpl64"
 MINFREQUENCY=640000 #Only test frequencies from this point.
 MAXFREQUENCY=1200000 #Only test frequencies upto this point.
 COOLDOWNTEMP=55000 #Cool down after a test to mC degrees
+COOLDOWNFREQ=640000 # Set to this speed when cooling down
 
 CPUFREQ_HANDLER="/sys/devices/system/cpu/cpu0/cpufreq/";
 SCALINGAVAILABLEFREQUENCIES="scaling_available_frequencies";
@@ -31,6 +32,13 @@ if [ ! -d "${ROOT}/results" ];
 then
 	echo "Create";
 	mkdir ${ROOT}/results;
+fi
+
+if [ ! -f "/usr/lib/libmpich.so.12" ];
+then
+	echo "You need libmpich-dev to run xhpl"
+	echo "Install using sudo apt install libmpich-dev"
+   	exit 1
 fi
 
 AVAILABLEFREQUENCIES=$(cat ${CPUFREQ_HANDLER}${SCALINGAVAILABLEFREQUENCIES})
@@ -66,6 +74,8 @@ do
         done
         echo -ne "\r"
         echo -n "Cooling down"
+        echo $COOLDOWNFREQ > ${CPUFREQ_HANDLER}${SCALINGMINFREQUENCY}
+        echo $COOLDOWNFREQ > ${CPUFREQ_HANDLER}${SCALINGMAXFREQUENCY}
         while [ $SOCTEMP -gt $COOLDOWNTEMP ];
         do
             SOCTEMP=$(cat ${SOCTEMPCMD})
@@ -73,6 +83,7 @@ do
             
             sleep 1;
         done
+	echo -ne "\n"
     fi
 done
 
