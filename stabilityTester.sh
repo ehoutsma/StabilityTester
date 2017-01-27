@@ -27,6 +27,12 @@ fi
 
 trap "{ killall ${ROOT}/${XHPLBINARY}; exit 0; }" SIGINT SIGTERM
 
+if [ ! -d "${ROOT}/results" ];
+then
+	echo "Create";
+	mkdir ${ROOT}/results;
+fi
+
 AVAILABLEFREQUENCIES=$(cat ${CPUFREQ_HANDLER}${SCALINGAVAILABLEFREQUENCIES})
 
 for FREQUENCY in $AVAILABLEFREQUENCIES
